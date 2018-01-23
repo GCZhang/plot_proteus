@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/home/holmes/anaconda3/bin/python
 # -*- coding: utf-8 -*-
 
 #==============================================================================
@@ -17,6 +17,7 @@ import sys
 import optparse
 import itertools
 import matplotlib as mpl
+# mpl.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
 ###############################################################################
@@ -93,7 +94,8 @@ class IterationErrorList():
             sys.stderr.write("Length of error list is zero. No value to filter.")
             sys.exit(1)
 
-        if not self.iter_list[0].getDict().has_key(error_name):
+        # if not self.iter_list[0].getDict().has_key(error_name):
+        if error_name not in self.iter_list[0].getDict():
             sys.stderr.write("%s can not be found!"%error_name)
             sys.exit(1)
 
@@ -227,7 +229,7 @@ def parseMOCEXOutput(file_name):
 
 #==============================================================================
 def parseMOCEXResidual(file_name, outer=1, group=1):
-    print 'outer = ', outer, 'group = ', group
+    print('outer = ', outer, 'group = ', group)
     residual = []
     residual_list = []
 
@@ -446,9 +448,9 @@ def main():
 
     for error in error_list:
         idx = error_list.index(error)
-        print 'file: ',mocoutput_file_list[idx], ', solver name: ', getSolverName(solver_list,idx), ', error name: ', options.errorname
-        print 'len: ', len(error)
-        print error
+        print('file: ',mocoutput_file_list[idx], ', solver name: ', getSolverName(solver_list,idx), ', error name: ', options.errorname)
+        print('len: ', len(error))
+        print(error)
 
     marker = itertools.cycle(( 'o', '^', '*', '<', '>', ',', '+', '.', 'v' ))
 
@@ -468,7 +470,7 @@ def main():
 
     error_name = options.errorname
     for error in error_list:
-        xdata = [i for i in xrange(1, len(error)+1)]
+        xdata = [i for i in range(1, len(error)+1)]
         xdata_len.append(len(xdata))
         idx = error_list.index(error)
         solver_name = getSolverName(solver_list, idx)
@@ -476,24 +478,24 @@ def main():
            or error_name=='Iter_WGS_K_Maximum' or error_name=='Iter_WGS_K_Maximum_Group' \
            or error_name=='Iter_WGS_K_Minimum' or error_name=='Iter_WGS_K_Minimum_Group':
             if solver_name != 'MIX':
-                plt.plot(xdata, error, marker=marker.next(), markersize=6,
+                plt.plot(xdata, error, marker=next(marker), markersize=6,
                     label=label_list[idx])
             else:
-                plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file, idx), marker=marker.next())
+                plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file, idx), marker=next(marker))
                 plt.plot(xdata, error, label=label_list[idx])
         else:
             if solver_name != 'MIX':
-                plt.semilogy(xdata, error, marker=marker.next(), markersize=6,
+                plt.semilogy(xdata, error, marker=next(marker), markersize=6,
                     label=label_list[idx])
             else:
                 ax.set_yscale('log')
-                plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file,idx), marker=marker.next())
+                plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file,idx), marker=next(marker))
                 plt.semilogy(xdata, error, label=label_list[idx])
 
     plt.legend(loc='best')
 
     plt.xlim(0, max(xdata_len)+1)
-    xticks = [i for i in xrange(max(xdata_len)+1)]
+    xticks = [i for i in range(max(xdata_len)+1)]
     # plt.ylim(0.9,1.15)
     # ax.set_xticks(xticks)
     ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True))
