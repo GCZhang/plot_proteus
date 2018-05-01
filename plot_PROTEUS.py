@@ -335,7 +335,7 @@ Examples:
 
     parser.add_option('-e', '--errorname',
             action='store', dest='errorname',
-            help='Error name you want to plot. Default: Error.', default='Error')
+            help='Error name you want to plot. Default: Error.', default='Fiss Err')
 
     parser.add_option('-l', '--label',
             action='store', dest='label',
