@@ -446,11 +446,13 @@ def main():
         else:
             error_list = iter_error_file
 
-    for error in error_list:
-        idx = error_list.index(error)
-        print('file: ',mocoutput_file_list[idx], ', solver name: ', getSolverName(solver_list,idx), ', error name: ', options.errorname)
-        print('len: ', len(error))
-        print(error)
+    for idx in range(len(error_list)):
+        print('file   : ', mocoutput_file_list[idx])
+        print('solver : ', getSolverName(solver_list,idx))
+        print('error  : ', options.errorname)
+        print('length : ', len(error_list[idx]))
+        print('value  :',  error_list[idx])
+        print('sum    :',  sum(error_list[idx]))
 
     marker = itertools.cycle(( 'o', '^', '*', '<', '>', ',', '+', '.', 'v' ))
 
@@ -469,10 +471,10 @@ def main():
         plt.ylabel(r'$\Vert{r}\Vert_2/\Vert{b}\Vert_2$')
 
     error_name = options.errorname
-    for error in error_list:
+    for idx in range(len(error_list)):
+        error = error_list[idx]
         xdata = [i for i in range(1, len(error)+1)]
         xdata_len.append(len(xdata))
-        idx = error_list.index(error)
         solver_name = getSolverName(solver_list, idx)
         if error_name=='Eigenvalue' or error_name=='Dom' or error_name=='Iter_WGS_K_Cumulative' \
            or error_name=='Iter_WGS_K_Maximum' or error_name=='Iter_WGS_K_Maximum_Group' \
