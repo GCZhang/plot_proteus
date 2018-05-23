@@ -222,6 +222,10 @@ def parseMOCEXOutput(file_name):
         # Min WGS K iterations and its group
         error_dict.add('Iter_WGS_K_Minimum', int(line_list[11].split()[0]))
         error_dict.add('Iter_WGS_K_Minimum_Group', int(line_list[11].split()[1]))
+        # Pseudo Error
+        if len(line_list) > 12:
+            error_dict.add('PError', float(line_list[12].split()[0]))
+            error_dict.add('PError_Group', int(line_list[12].split()[1]))
 
         iter_error_list.append(error_dict)
 
@@ -297,7 +301,7 @@ ErrorNameList:
   Seconds, Itr, Eigenvalue, Error, 'Fiss Err', 'Flux Err', Dom,
   Error_WGS_K_Maximum, Error_WGS_K_Group, Iter_WGS_K_Cumulative,
   Iter_WGS_K_Maximum, Iter_WGS_K_Maximum_Group, Iter_WGS_K_Minimum,
-  Iter_WGS_K_Minimum_Group;
+  Iter_WGS_K_Minimum_Group, PError, PError_Group;
   residual;
 
 Warning:
@@ -331,11 +335,12 @@ Examples:
     parser.add_option('-s', '--solver',
             action='store', dest='solver',
             help='Which solver error you want to plot [MOC|CMFD|MIX].\
-                    Could be one or must be equal to moucoutput. Default: MOC', default='MOC')
+                    Could be one or must be equal to mocoutput. Default: MOC', default='MOC')
 
     parser.add_option('-e', '--errorname',
             action='store', dest='errorname',
-            help='Error name you want to plot. Default: Error.', default='Fiss Err')
+            help='Error name you want to plot. Default: Error.\
+                    Could be one or must be equal to mocoutput. Separator: Semicolon (;)', default='Fiss Err')
 
     parser.add_option('-l', '--label',
             action='store', dest='label',
@@ -371,6 +376,12 @@ def getSolverName(solver_list, idx):
         return solver_list[0]
     else:
         return solver_list[idx]
+
+def getErrorName(errorname_list, idx):
+    if len(errorname_list) == 1:
+        return errorname_list[0]
+    else:
+        return errorname_list[idx]
 
 def getColorMap(iter_error_list_list, idx):
     color_map = []
@@ -417,6 +428,11 @@ def main():
     # Either 1 or equal to the number of mocoutput.
     solver_list = options.solver.split()
 
+    #--------------------------------------------------------------------------
+    # error name list.
+    # either 1 or equal to the number of mocoutput.
+    errorname_list = options.errorname.split(';')
+
     # -------------------------------------------------------------------------
 
     iter_error_file = []
@@ -433,16 +449,17 @@ def main():
         for mocoutput_file in mocoutput_file_list:
             iter_error_file.append(parseMOCEXOutput(mocoutput_file))
 
-    for iter_error_list in iter_error_file:
-        idx = iter_error_file.index(iter_error_list)
+    for idx in range(len(iter_error_file)):
+        iter_error_list = iter_error_file[idx]
 
         solver_name = getSolverName(solver_list, idx)
+        error_name  = getErrorName(errorname_list, idx)
 
         if not options.residual:
             if solver_name == 'MIX':
-                error_list.append(iter_error_list.getError(options.errorname))
+                error_list.append(iter_error_list.getError(error_name))
             else:
-                error_list.append(iter_error_list.filter(solver_name, options.errorname))
+                error_list.append(iter_error_list.filter(solver_name, error_name))
         else:
             error_list = iter_error_file
 
