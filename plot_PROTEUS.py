@@ -466,7 +466,7 @@ def main():
     for idx in range(len(error_list)):
         print('file   : ', mocoutput_file_list[idx])
         print('solver : ', getSolverName(solver_list,idx))
-        print('error  : ', options.errorname.split(';')[idx])
+        print('error  : ', getErrorName(errorname_list, idx))
         print('length : ', len(error_list[idx]))
         print('value  :',  error_list[idx])
         print('sum    :',  sum(error_list[idx]))
