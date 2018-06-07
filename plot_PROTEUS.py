@@ -1,4 +1,4 @@
-#!/home/holmes/anaconda3/bin/python
+#!/bin/env python
 # -*- coding: utf-8 -*-
 
 #==============================================================================
@@ -223,9 +223,9 @@ def parseMOCEXOutput(file_name):
         error_dict.add('Iter_WGS_K_Minimum', int(line_list[11].split()[0]))
         error_dict.add('Iter_WGS_K_Minimum_Group', int(line_list[11].split()[1]))
         # Pseudo Error
-        if len(line_list) > 12:
-            error_dict.add('PError', float(line_list[12].split()[0]))
-            error_dict.add('PError_Group', int(line_list[12].split()[1]))
+        # if len(line_list) > 12:
+        #     error_dict.add('PError', float(line_list[12].split()[0]))
+        #     error_dict.add('PError_Group', int(line_list[12].split()[1]))
 
         iter_error_list.append(error_dict)
 
@@ -466,7 +466,7 @@ def main():
     for idx in range(len(error_list)):
         print('file   : ', mocoutput_file_list[idx])
         print('solver : ', getSolverName(solver_list,idx))
-        print('error  : ', options.errorname)
+        print('error  : ', options.errorname.split(';')[idx])
         print('length : ', len(error_list[idx]))
         print('value  :',  error_list[idx])
         print('sum    :',  sum(error_list[idx]))
