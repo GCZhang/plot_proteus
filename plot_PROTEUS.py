@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #==============================================================================
@@ -17,7 +17,7 @@ import sys
 import optparse
 import itertools
 import matplotlib as mpl
-# mpl.use('Qt5Agg')
+mpl.use('Qt5Agg')
 import matplotlib.pyplot as plt
 
 ###############################################################################
