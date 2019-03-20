@@ -183,7 +183,7 @@ def parseMOCEXOutput(file_name):
         line_list = line.split('|')
         # print line_list
 
-        if 'KRYLOV' in line_list[0] or 'LEGACY' in line_list[0]:
+        if 'KRYLOV' in line_list[0] or 'LEGACY' in line_list[0] or 'MOCEX' in line_list[0]:
             solver_name = "MOC"
         elif 'CMFD' in line_list[0]:
             solver_name = 'CMFD'
