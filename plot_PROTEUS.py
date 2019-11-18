@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 #==============================================================================
@@ -180,6 +180,7 @@ def parseMOCEXOutput(file_name):
         error_dict = IterationError()
         line = line.rstrip()
         if END_SIGN in line: break
+        if not '|' in line: continue
         line_list = line.split('|')
         # print line_list
 
