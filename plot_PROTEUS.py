@@ -19,7 +19,7 @@ import itertools
 import matplotlib as mpl
 mpl.use('Qt5Agg')
 import matplotlib.pyplot as plt
-
+import numpy as np
 ###############################################################################
 def stripComment(s):
     return re.subn(r'!.*', '', s)[0]
@@ -478,23 +478,26 @@ def main():
     font = {'family':'times', 'size':14}
     mpl.rc('font', **font)
 
-    plt.figure(num=1, figsize=(9.708,6))
-    ax = plt.gca()
-    plt.subplot(111)
+    fig = plt.figure(num=1, figsize=(9.708,6))
+    #axes1 = plt.gca()
+    axes1 = fig.add_subplot(111)
     plt.title('Converge info of %s'%options.errorname)
-    plt.xlabel('Iteration Number')
+    axes1.set_xlabel('Iteration Number')
     if not options.residual:
-        plt.ylabel(options.errorname)
+        axes1.set_ylabel(options.errorname)
     else:
-        plt.ylabel(r'$\Vert{r}\Vert_2/\Vert{b}\Vert_2$')
+        axes1.set_ylabel(r'$\Vert{r}\Vert_2/\Vert{b}\Vert_2$')
 
     error_name = options.errorname
+    wgs_k1 = []
+    wgs_k2 = []
+    plots  = []
     for idx in range(len(error_list)):
         error = error_list[idx]
         xdata = [i for i in range(1, len(error)+1)]
         xdata_len.append(len(xdata))
         solver_name = getSolverName(solver_list, idx)
-        if error_name=='Eigenvalue' or error_name=='Dom' or error_name=='Iter_WGS_K_Cumulative' \
+        if error_name=='Eigenvalue' or error_name=='Dom'  \
            or error_name=='Iter_WGS_K_Maximum' or error_name=='Iter_WGS_K_Maximum_Group' \
            or error_name=='Iter_WGS_K_Minimum' or error_name=='Iter_WGS_K_Minimum_Group':
             if solver_name != 'MIX':
@@ -503,24 +506,60 @@ def main():
             else:
                 plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file, idx), marker=next(marker))
                 plt.plot(xdata, error, label=label_list[idx])
+        # for my paper: "linearized CMFD preconditioner for 2-D MOC with Krylov subspace methods"
+        elif error_name=='Iter_WGS_K_Cumulative':
+            ind   = np.arange(len(xdata))
+            width = 0.35
+            plots.append(axes1.bar(ind - (-1)**idx*width/2.0, error, width, label=label_list[idx]))
+            if len(error_list) > 1:
+                wgs_k1 = wgs_k2
+                wgs_k2 = np.array(error)
+                # plot reduction line
+                if idx > 0:
+                    axes2 = axes1.twinx()
+                    temp_plt, = axes2.plot(np.array(xdata)-1, (wgs_k1 - wgs_k2)/wgs_k1*100, 'r--', 
+                               marker=next(marker), markersize=6,
+                               label='Iteration Reduction')
+                    plots.append(temp_plt)
+                    for x,y in zip(np.array(xdata)-1, (wgs_k1 - wgs_k2)/wgs_k1*100):
+                        label = label = "{:.1f}%".format(y)
+                        plt.annotate(label, # this is the text
+                                     (x,y), # this is the point to label
+                                     textcoords="offset points", # how to position the text
+                                     xytext=(10,0), # distance from text to points (x,y)
+                                     ha='left', # horizontal alignment can be left, right or center
+                                     va='center')   
         else:
             if solver_name != 'MIX':
                 plt.semilogy(xdata, error, marker=next(marker), markersize=6,
                     label=label_list[idx])
             else:
-                ax.set_yscale('log')
+                axes1.set_yscale('log')
                 plt.scatter(xdata, error, s=80, color=getColorMap(iter_error_file,idx), marker=next(marker))
                 plt.semilogy(xdata, error, label=label_list[idx])
 
-    plt.legend(loc='best')
+    if error_name != 'Iter_WGS_K_Cumulative':
+        plt.legend(loc='best')
+    else:
+        # print(plots[0].get_label())
+        # print(plots[1].get_label())
+        # print(plots[2].get_label())
+        labels = [l.get_label() for l in plots]
+        axes1.legend(plots, labels, loc=0)
+        axes2.set_ylabel("Iteration Reduction Percentage (%)")
 
-    plt.xlim(0, max(xdata_len)+1)
+    if error_name != "Iter_WGS_K_Cumulative": plt.xlim(0, max(xdata_len)+1)
     xticks = [i for i in range(max(xdata_len)+1)]
     # plt.ylim(0.9,1.15)
     # ax.set_xticks(xticks)
-    ax.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True))
+    axes1.xaxis.set_major_locator(mpl.ticker.MaxNLocator(integer=True))
 
-    plt.grid(b=True, which='major',  linestyle='--')
+    if error_name != "Iter_WGS_K_Cumulative":
+        plt.grid(b=True, which='major',  linestyle='--')
+    else:
+        plt.grid(b=True, which='minor', axis='y', linestyle=':')
+    
+    #plt.tight_layout()
     plt.show()
     # plt.savefig(options.output+'.'+options.format, fmt=options.format)
 
